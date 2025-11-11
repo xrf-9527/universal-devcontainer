@@ -51,5 +51,31 @@ else
   done
 fi
 
+allow_proxy_from_env() {
+  # Extract proxy from HTTP(S)_PROXY or ALL_PROXY environment variables
+  PROXY_RAW="${HTTP_PROXY:-${HTTPS_PROXY:-${ALL_PROXY:-}}}"
+  [ -z "$PROXY_RAW" ] && return 0
+
+  # Remove protocol prefix and extract host:port
+  PROXY_HP="${PROXY_RAW#*://}"
+  PROXY_HP="${PROXY_HP%%/*}"
+  PROXY_HOST="${PROXY_HP%:*}"
+  PROXY_PORT="${PROXY_HP#*:}"
+
+  # Validate we have both host and port
+  [ -z "$PROXY_HOST" ] || [ -z "$PROXY_PORT" ] && return 0
+  [ "$PROXY_HOST" = "$PROXY_PORT" ] && return 0  # No port specified
+
+  echo "Allowlisting proxy: $PROXY_HOST:$PROXY_PORT"
+
+  # Resolve proxy host to IPv4 addresses and allow TCP connections to the proxy port
+  for ip in $(getent ahostsv4 "$PROXY_HOST" 2>/dev/null | awk '{print $1}' | sort -u); do
+    iptables -A OUTPUT -p tcp -d "$ip" --dport "$PROXY_PORT" -j ACCEPT || true
+  done
+}
+
+# Allow proxy connections before setting default DROP policy
+allow_proxy_from_env
+
 iptables -P OUTPUT DROP
 iptables -S OUTPUT || true

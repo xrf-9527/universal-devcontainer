@@ -41,6 +41,9 @@ claude /help
 | `ALLOW_SSH_ANY` | 允许任意 SSH 连接（默认 `0`，仅允许 GitHub） | `1` |
 | `ENABLE_CLAUDE_SANDBOX` | 启用 Claude Code 沙箱模式 | `1` |
 | `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` | API Key Helper 缓存时间（毫秒） | `300000` |
+| `HOST_PROXY_URL` | 宿主机 HTTP/HTTPS 代理地址 | `http://host.docker.internal:7890` |
+| `ALL_PROXY` | 宿主机 SOCKS 代理地址（可选） | `socks5h://host.docker.internal:1080` |
+| `NO_PROXY` | 不走代理的地址列表（可选） | `localhost,127.0.0.1,.local` |
 
 #### EXTRA_ALLOW_DOMAINS 使用示例
 ```bash
@@ -73,6 +76,8 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
 
 **扩展白名单**：使用 `EXTRA_ALLOW_DOMAINS` 环境变量添加额外域名。
 
+**VPN/代理支持**：容器支持通过宿主机代理访问网络。详见 [VPN/代理配置指南](docs/PROXY_SETUP.md)。
+
 ## 内置功能
 
 ### 预装插件
@@ -97,13 +102,16 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
   - `devcontainer.json` — VS Code Dev Container 配置
   - `bootstrap-claude.sh` — Claude Code 安装和配置（postCreate）
   - `init-firewall.sh` — 防火墙初始化（postStart）
+  - `setup-proxy.sh` — 代理配置脚本（可选执行）
 - `scripts/` — 辅助脚本
   - `open-here.sh` — 在当前目录打开 Dev Container
   - `open-project.sh <路径|Git URL>` — 打开指定项目
   - `switch-mode.sh` — 权限模式切换
 - `.claude/` — Claude Code 配置
   - `settings.local.json` — 项目级权限配置
-- `README.md` / `MODE-SWITCH.md` — 文档
+- `docs/` — 文档目录
+  - `PROXY_SETUP.md` — VPN/代理配置指南
+- `README.md` / `MODE-SWITCH.md` — 主要文档
 
 ## 安全提醒
 - **绕过模式**不会有人类确认，请**只在可信项目**使用

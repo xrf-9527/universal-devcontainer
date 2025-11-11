@@ -21,18 +21,27 @@
   "postCreateCommand": "bash .devcontainer/bootstrap-claude.sh",
   "postStartCommand": "sudo bash .devcontainer/init-firewall.sh || true",
   "runArgs": [
-    "--cap-add=NET_ADMIN"
+    "--cap-add=NET_ADMIN",
+    "--add-host=host.docker.internal:host-gateway"
   ],
   "remoteEnv": {
     "CLAUDE_LOGIN_METHOD": "${localEnv:CLAUDE_LOGIN_METHOD}",
     "CLAUDE_ORG_UUID": "${localEnv:CLAUDE_ORG_UUID}",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
     "CLAUDE_CODE_API_KEY_HELPER_TTL_MS": "${localEnv:CLAUDE_CODE_API_KEY_HELPER_TTL_MS}",
-    "ENABLE_CLAUDE_SANDBOX": "${localEnv:ENABLE_CLAUDE_SANDBOX}"
+    "ENABLE_CLAUDE_SANDBOX": "${localEnv:ENABLE_CLAUDE_SANDBOX}",
+    "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
+    "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
+    "ALL_PROXY": "${localEnv:ALL_PROXY}",
+    "NO_PROXY": "${localEnv:NO_PROXY}"
   },
   "containerEnv": {
     "CLAUDE_CODE_API_KEY_HELPER_TTL_MS": "${localEnv:CLAUDE_CODE_API_KEY_HELPER_TTL_MS}",
-    "ENABLE_CLAUDE_SANDBOX": "${localEnv:ENABLE_CLAUDE_SANDBOX}"
+    "ENABLE_CLAUDE_SANDBOX": "${localEnv:ENABLE_CLAUDE_SANDBOX}",
+    "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
+    "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
+    "ALL_PROXY": "${localEnv:ALL_PROXY}",
+    "NO_PROXY": "${localEnv:NO_PROXY}"
   },
   "customizations": {
     "vscode": {
