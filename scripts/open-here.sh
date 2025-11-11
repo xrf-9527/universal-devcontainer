@@ -28,14 +28,28 @@ PY
 )
 
 PARENT_DIR=$(dirname "$REL_CFG")
-cat > "$PROJ_DEV_DIR/devcontainer.json" <<EOF
+
+# Try to derive a GitHub extends URI from this repo's origin (optional)
+GH_EXT=""
+if ORIGIN_URL=$(git -C "$REPO_ROOT" remote get-url origin 2>/dev/null); then
+  if OWNER_REPO=$(printf '%s' "$ORIGIN_URL" | sed -E 's#.*github.com[:/ ]([^/]+/[^/.]+)(\.git)?$#\1#'); then
+    if [ -n "$OWNER_REPO" ] && [ "$OWNER_REPO" != "$ORIGIN_URL" ]; then
+      GH_EXT="github:$OWNER_REPO/.devcontainer/devcontainer.json"
+    fi
+  fi
+fi
+
 {
-  "name": "$(basename "$PROJECT_DIR")",
-  "extends": [
-    "file:$PARENT_DIR"
-  ]
-}
-EOF
+  echo '{'
+  echo '  "name": "'$(basename "$PROJECT_DIR")'",'
+  echo '  "extends": ['
+  echo '    "file:'"$PARENT_DIR"'"'
+  if [ -n "$GH_EXT" ]; then
+    echo '   ,"'"$GH_EXT"'"'
+  fi
+  echo '  ]'
+  echo '}'
+} > "$PROJ_DEV_DIR/devcontainer.json"
 echo "[universal-devcontainer] Wrote: $PROJ_DEV_DIR/devcontainer.json (extends current repo config)"
 echo "Opening project in VS Code; choose 'Dev Containers: Reopen in Container' if prompted."
 exec code "$PROJECT_DIR"
