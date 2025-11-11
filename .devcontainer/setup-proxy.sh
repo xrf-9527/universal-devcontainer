@@ -91,7 +91,7 @@ if command -v wget >/dev/null 2>&1; then
   echo ""
   echo "Configuring wget proxy..."
   if [[ -n "$PROXY_HTTP" ]]; then
-    mkdir -p ~/.wgetrc || true
+    : > ~/.wgetrc
     cat > ~/.wgetrc <<EOF
 http_proxy = $PROXY_HTTP
 https_proxy = $PROXY_HTTPS
