@@ -1,0 +1,3 @@
+# Local-only Dev Container override (binds external project paths)
+.devcontainer/devcontainer.local.json
+
