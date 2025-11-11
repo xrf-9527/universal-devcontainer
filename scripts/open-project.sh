@@ -32,9 +32,7 @@ PN_ESC="$(json_escape "$PROJECT_NAME")"
 
 cat > "$LOCAL_JSON" <<EOF
 {
-  "mounts": [
-    "source=$PD_ESC,target=/workspaces/$PN_ESC,type=bind,consistency=cached"
-  ],
+  "workspaceMount": "source=$PD_ESC,target=/workspaces/$PN_ESC,type=bind,consistency=cached",
   "workspaceFolder": "/workspaces/$PN_ESC"
 }
 EOF
