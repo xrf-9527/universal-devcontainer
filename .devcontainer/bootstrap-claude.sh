@@ -3,8 +3,18 @@ set -euo pipefail
 
 npm i -g @anthropic-ai/claude-code
 
-mkdir -p "$HOME/.claude/bin" "$HOME/.claude/commands" "$HOME/.claude/skills"
-CFG="$HOME/.claude/settings.json"
+# Ensure $HOME/.claude (mounted volume) is writable by current user
+CLAUDE_HOME="$HOME/.claude"
+if ! mkdir -p "$CLAUDE_HOME" 2>/dev/null; then
+  sudo mkdir -p "$CLAUDE_HOME"
+fi
+if ! touch "$CLAUDE_HOME/.permcheck" 2>/dev/null; then
+  sudo chown -R "$(id -u)":"$(id -g)" "$CLAUDE_HOME" || true
+fi
+rm -f "$CLAUDE_HOME/.permcheck" 2>/dev/null || true
+
+mkdir -p "$CLAUDE_HOME/bin" "$CLAUDE_HOME/commands" "$CLAUDE_HOME/skills"
+CFG="$CLAUDE_HOME/settings.json"
 
 LOGIN_METHOD="${CLAUDE_LOGIN_METHOD:-claudeai}"
 
