@@ -114,6 +114,17 @@ export EXTRA_ALLOW_DOMAINS="gitlab.mycompany.com registry.internal.net"
 - 设置 `NO_PROXY=localhost,127.0.0.1,host.docker.internal,.local`
 - 受限网络下建议只走代理；如需更严格策略，可按需调整 `.devcontainer/init-firewall.sh`
 
+### 严格只走代理（Strict Proxy Only）
+- 行为：仅放行 DNS 与代理主机端口（例如 1082），不再放行任何域名直连（即便在白名单中）。所有外网访问都必须通过代理，否则会被阻断。
+- 影响：GitHub/npm/Claude 也必须走代理；不读取代理的工具会失败，需要显式配置它们的代理。
+- 启用方式：设置环境变量 `STRICT_PROXY_ONLY=1`，并重建/重启容器。
+  - 在 `devcontainer.json`（容器环境）加入：
+    ```json
+    "containerEnv": { "STRICT_PROXY_ONLY": "1" }
+    ```
+  - 或在 VS Code 运行时设置（临时）：容器内 `export STRICT_PROXY_ONLY=1` 后重启 postStart（或重建）
+  - 需要直连 SSH（22）时，请在严格模式下为 SSH 配置代理（ProxyCommand/ProxyJump/HTTPS ProxyCommand 等）
+
 ## 内置功能
 
 ### 预装插件
