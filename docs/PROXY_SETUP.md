@@ -105,6 +105,14 @@ sudo iptables -S OUTPUT | grep -i proxy
 
 ```json
 {
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
+      "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
+      "NO_PROXY": "${localEnv:NO_PROXY}"
+    }
+  },
   "runArgs": [
     "--cap-add=NET_ADMIN",
     "--add-host=host.docker.internal:host-gateway"
@@ -125,6 +133,7 @@ sudo iptables -S OUTPUT | grep -i proxy
 ```
 
 **配置说明**：
+- **`build.args`**: **[新增]** 传递代理配置到 Docker 构建阶段，用于安装 features（Python、Node、GitHub CLI 等）时的网络访问
 - `--add-host=host.docker.internal:host-gateway`: 让 Linux 系统也能使用 `host.docker.internal`
 - `${localEnv:HOST_PROXY_URL}`: 从宿主机环境变量读取代理 URL
 - `remoteEnv`: 为 VS Code 及其子进程（终端、任务等）设置环境变量
@@ -222,6 +231,53 @@ unset HTTP_PROXY HTTPS_PROXY ALL_PROXY
 ```
 
 注意：方法 2 只对当前 shell 会话有效。
+
+### Q6: 构建容器时出现网络错误怎么办？
+
+如果在 **构建阶段**（如安装 Python、Node 等 features）遇到网络错误：
+
+```
+E: Failed to fetch http://ports.ubuntu.com/...
+500 reading HTTP response body: unexpected EOF
+```
+
+**原因**：这是构建时代理配置缺失导致的。Docker 构建阶段无法直接使用运行时的环境变量。
+
+**解决方案**：
+
+1. **确保已设置宿主机环境变量**（在启动 VS Code 之前）：
+   ```bash
+   export HOST_PROXY_URL=http://host.docker.internal:7890
+   export NO_PROXY=localhost,127.0.0.1,host.docker.internal,.local
+   ```
+
+2. **Dockerfile 已配置构建参数**（项目已包含）：
+   ```dockerfile
+   ARG HTTP_PROXY
+   ARG HTTPS_PROXY
+   ARG NO_PROXY
+   ENV http_proxy=${HTTP_PROXY}
+   ENV https_proxy=${HTTPS_PROXY}
+   # ...
+   ```
+
+3. **devcontainer.json 已配置 build.args**（项目已包含）：
+   ```json
+   {
+     "build": {
+       "args": {
+         "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
+         "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
+         "NO_PROXY": "${localEnv:NO_PROXY}"
+       }
+     }
+   }
+   ```
+
+4. **重建容器**：
+   - VS Code 命令面板 → `Dev Containers: Rebuild Container`
+
+**验证**：在构建日志中应该看到代理被正确使用，不再出现网络超时或 500 错误。
 
 ## 进阶配置
 

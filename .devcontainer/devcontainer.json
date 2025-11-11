@@ -1,7 +1,12 @@
 {
   "name": "universal-dev-with-claude (v2-bypass)",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "args": {
+      "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
+      "HTTPS_PROXY": "${localEnv:HOST_PROXY_URL}",
+      "NO_PROXY": "${localEnv:NO_PROXY}"
+    }
   },
   "remoteUser": "vscode",
   "workspaceMount": "source=${localEnv:PROJECT_DIR},target=/workspaces/${localEnv:PROJECT_NAME},type=bind,consistency=cached",
