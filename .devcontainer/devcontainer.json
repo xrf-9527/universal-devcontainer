@@ -32,6 +32,7 @@
     "source=${localEnv:PROJECT_PATH},target=/workspace,type=bind"
   ],
   "remoteEnv": {
+    "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
     "CLAUDE_LOGIN_METHOD": "${localEnv:CLAUDE_LOGIN_METHOD}",
     "CLAUDE_ORG_UUID": "${localEnv:CLAUDE_ORG_UUID}",
     "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}",
@@ -43,6 +44,7 @@
     "NO_PROXY": "${localEnv:NO_PROXY}"
   },
   "containerEnv": {
+    "PROJECT_PATH": "${localEnv:PROJECT_PATH}",
     "CLAUDE_CODE_API_KEY_HELPER_TTL_MS": "${localEnv:CLAUDE_CODE_API_KEY_HELPER_TTL_MS}",
     "ENABLE_CLAUDE_SANDBOX": "${localEnv:ENABLE_CLAUDE_SANDBOX}",
     "HTTP_PROXY": "${localEnv:HOST_PROXY_URL}",
