@@ -295,6 +295,19 @@ chmod o+rx /Users/<username>/developer/<project>
 - **方法 2**：检查相对路径是否正确（从项目根目录到配置文件的路径）
 - **方法 3**：使用方法 1（VS Code UI 流程），无需 extends
 
+### 问题：授权页面一直转圈（OAuth 本地回调 localhost）
+
+**现象**：打开 `https://claude.ai/oauth/authorize?...redirect_uri=http://localhost:<随机端口>/callback` 点击 Authorize 后页面一直加载。
+
+**根因**：回调服务在容器内监听 `127.0.0.1:<随机端口>`，而浏览器在宿主机访问 `localhost:<随机端口>`。未进行端口转发时，宿主机的本地回环无法到达容器，回调请求失败。
+
+**解决**：
+- 已内置：`devcontainer.json` 启用动态端口自动转发（`portsAttributes.otherPortsAttributes` + `remote.autoForwardPorts=true`）。出现回调端口监听时，VS Code 会自动将容器端口转发到宿主机相同端口；通常无需手动操作。
+- 如仍失败：
+  - 观察授权 URL 中的端口号（如 `63497`），在 VS Code 左侧 “PORTS” 面板手动 Forward 该端口。
+  - 或在容器内执行登录时，用 `ss -lntp | grep <端口>` 确认监听后再转发。
+  - 规避法：设置 `CLAUDE_LOGIN_METHOD=console` 并提供 `ANTHROPIC_API_KEY`，改走控制台/API Key 登录，绕开浏览器本地回调。
+
 ---
 
 ## 安全提醒 ⚠️
