@@ -47,15 +47,30 @@ allow_proxy_from_env() {
   PROXY_RAW="${HTTP_PROXY:-${HTTPS_PROXY:-${ALL_PROXY:-}}}"
   [ -z "$PROXY_RAW" ] && return 0
 
-  # Remove protocol prefix and extract host:port
-  PROXY_HP="${PROXY_RAW#*://}"
-  PROXY_HP="${PROXY_HP%%/*}"
-  PROXY_HOST="${PROXY_HP%:*}"
-  PROXY_PORT="${PROXY_HP#*:}"
+  # Strip scheme and path; drop credentials if present
+  hp="${PROXY_RAW#*://}"
+  hp="${hp%%/*}"
+  hp="${hp#*@}"
 
-  # Validate we have both host and port
-  [ -z "$PROXY_HOST" ] || [ -z "$PROXY_PORT" ] && return 0
-  [ "$PROXY_HOST" = "$PROXY_PORT" ] && return 0  # No port specified
+  PROXY_HOST=""
+  PROXY_PORT=""
+
+  # Handle IPv6-in-brackets or host:port
+  if [[ "$hp" =~ ^\[([0-9a-fA-F:]+)\]:(.+)$ ]]; then
+    PROXY_HOST="${BASH_REMATCH[1]}"
+    PROXY_PORT="${BASH_REMATCH[2]}"
+  elif [[ "$hp" =~ ^\[([0-9a-fA-F:]+)\]$ ]]; then
+    PROXY_HOST="${BASH_REMATCH[1]}"
+  elif [[ "$hp" =~ ^([^:]+):([0-9]+)$ ]]; then
+    PROXY_HOST="${BASH_REMATCH[1]}"
+    PROXY_PORT="${BASH_REMATCH[2]}"
+  else
+    PROXY_HOST="$hp"
+  fi
+
+  # Validate we have host and port
+  [ -z "$PROXY_HOST" ] && return 0
+  [ -z "$PROXY_PORT" ] && return 0
 
   echo "Allowlisting proxy: $PROXY_HOST:$PROXY_PORT"
 

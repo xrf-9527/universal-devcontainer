@@ -68,15 +68,19 @@ code /path/to/universal-devcontainer
 
 ### 方法 3：开发容器本身
 
-如果你想在这个容器里开发 universal-devcontainer 本身：
+如果你想在这个容器里开发 universal-devcontainer 本身，请同样提供 `PROJECT_PATH`（或使用脚本）：
 
 ```bash
-# 不设置 PROJECT_PATH，直接打开
+# 方式 1：用脚本（推荐）
+/path/to/universal-devcontainer/scripts/open-project.sh /path/to/universal-devcontainer
+
+# 方式 2：手动设置环境变量
+export PROJECT_PATH=/path/to/universal-devcontainer
 code /path/to/universal-devcontainer
-# Reopen in Container
+# 在 VS Code 中：Dev Containers: Reopen in Container
 ```
 
-容器会挂载 universal-devcontainer 目录到 `/workspace`。
+说明：为确保兼容性与可预期行为，本配置采用“方案A”，仅在设置了 `PROJECT_PATH` 时进行挂载。
 
 ---
 
@@ -148,14 +152,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 默认使用 **bypass 模式**（无人工确认）。如需更安全的模式：
 
-```bash
-# 在容器内执行
-scripts/switch-mode.sh bypass      # 绕过模式（默认）
-scripts/switch-mode.sh safe        # 安全模式（acceptEdits + 禁用绕过）
-scripts/switch-mode.sh custom ask  # 自定义模式
-```
-
-或手动编辑 `.claude/settings.local.json`，详见 `MODE-SWITCH.md`。
+- 请参考 `MODE-SWITCH.md`，在 `~/.claude/settings.json` 中将 `permissions.defaultMode` 修改为 `acceptEdits`，并可选添加 `permissions.disableBypassPermissionsMode = "disable"`。
 
 ---
 
@@ -221,14 +218,13 @@ claude /plugins search commit-commands
 ```
 universal-devcontainer/
 ├── .devcontainer/
-│   ├── devcontainer.json       # 主配置（已简化，无 workspaceMount）
+│   ├── devcontainer.json       # 主配置（支持 workspaceMount 动态挂载）
 │   ├── Dockerfile              # 基础镜像
 │   ├── bootstrap-claude.sh     # Claude Code 安装
 │   ├── init-firewall.sh        # 防火墙规则
 │   └── setup-proxy.sh          # 代理配置
 ├── scripts/
-│   ├── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
-│   └── switch-mode.sh          # 权限模式切换
+│   └── open-project.sh         # 挂载外部项目到容器（设置 PROJECT_PATH）
 ├── .claude/
 │   └── settings.local.json     # 项目级权限配置
 └── docs/
@@ -286,10 +282,7 @@ chmod o+rx /Users/<username>/developer/<project>
 - 敏感文件受保护：`.env*`, `secrets/**`, `id_rsa`, `id_ed25519`
 - 容器需要 `--cap-add=NET_ADMIN` 权限来管理防火墙
 
-如需更安全的模式：
-```bash
-scripts/switch-mode.sh safe
-```
+如需更安全的模式：参阅 `MODE-SWITCH.md` 进行手动配置。
 
 ---
 
@@ -330,3 +323,11 @@ scripts/switch-mode.sh safe
 ## 许可证
 
 MIT License — 详见 `LICENSE` 文件
+### 问题：启动时提示挂载源不存在/为空（workspaceMount）
+
+**现象**：容器启动时报错，提示挂载源路径无效。
+
+**解决**：
+- 确认已设置 `PROJECT_PATH`（通过脚本或手动 `export`）。
+- `echo $PROJECT_PATH` 确认值是否为期望的项目路径。
+- 重新执行：`Dev Containers: Rebuild Container`。

@@ -8,7 +8,7 @@
       "NO_PROXY": "${localEnv:NO_PROXY}"
     }
   },
-  "workspaceMount": "source=${localEnv:PROJECT_PATH:-${localWorkspaceFolder}},target=/workspace,type=bind",
+  "workspaceMount": "source=${localEnv:PROJECT_PATH},target=/workspace,type=bind",
   "workspaceFolder": "/workspace",
   "remoteUser": "vscode",
 
@@ -17,12 +17,11 @@
       "version": "lts"
     },
     "ghcr.io/devcontainers/features/python:1": {
-      "version": "os-provided",
-      "httpProxy": "${localEnv:HOST_PROXY_URL}"
+      "version": "os-provided"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "bash .devcontainer/bootstrap-claude.sh",
+  "postCreateCommand": "sudo bash .devcontainer/init-firewall.sh || true && bash .devcontainer/bootstrap-claude.sh",
   "postStartCommand": "sudo bash .devcontainer/init-firewall.sh || true",
   "runArgs": [
     "--cap-add=NET_ADMIN",
@@ -59,6 +58,7 @@
       }
     }
   },
+  "waitFor": "postStartCommand",
   "forwardPorts": [
     3000,
     5173,

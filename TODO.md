@@ -220,8 +220,7 @@ examples/
 - [ ] `custom` — 自定义模式生成器
 
 **实现**：
-- 扩展 `switch-mode.sh`
-- 提供交互式配置向导
+- 提供交互式配置向导（直接编辑 `~/.claude/settings.json`）
 
 **预估工作量**：1-2 天
 
