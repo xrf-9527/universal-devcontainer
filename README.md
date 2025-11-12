@@ -150,9 +150,18 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ## 模式切换
 
-默认使用 **bypass 模式**（无人工确认）。如需更安全的模式：
+默认使用 **bypass 模式**（无人工确认）。如需更安全的模式，请手动编辑 `~/.claude/settings.json`：
 
-- 请参考 `MODE-SWITCH.md`，在 `~/.claude/settings.json` 中将 `permissions.defaultMode` 修改为 `acceptEdits`，并可选添加 `permissions.disableBypassPermissionsMode = "disable"`。
+```jsonc
+{
+  "permissions": {
+    // 更安全：需要确认编辑
+    "defaultMode": "acceptEdits",
+    // 可选：彻底禁用绕过模式（企业更严策略）
+    "disableBypassPermissionsMode": "disable"
+  }
+}
+```
 
 ---
 
@@ -282,7 +291,7 @@ chmod o+rx /Users/<username>/developer/<project>
 - 敏感文件受保护：`.env*`, `secrets/**`, `id_rsa`, `id_ed25519`
 - 容器需要 `--cap-add=NET_ADMIN` 权限来管理防火墙
 
-如需更安全的模式：参阅 `MODE-SWITCH.md` 进行手动配置。
+如需更安全的模式：按上面的示例手动配置。
 
 ---
 
